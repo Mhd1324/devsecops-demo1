@@ -113,4 +113,62 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          
+
+      - name: Run Trivy vunerability scan
+        uses: aquasecurity/trivy-action@v1
+        with:
+          image-ref: ${{ env.REGISTERY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      
+      - name: Set output image tag
+        id: set_output
+        run: echo "image_tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+  update-k8s:
+    name: Update Kubernetes Deployment
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN }}
+      
+      - name: Setup git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      
+      - name: update kubernetes deployment file
+        env:
+          IMAGE_TAG: sha-${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          REGISTERY: ghcr.io
+        run: |
+          # define new image name with tag
+          NEW_IMAGE="${REGISTERY}/${GITHUB_REPOSITORY}:${IMAGE_TAG}"
+          # update the deployment file directly
+          sed -i "s|image: ${REGISTARY}/.*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yml
+
+          # Verify the change
+          echo "Updated deployment to use image: ${NEW_IMAGE}"
+          grep -A 1 "image:" kubernetes/deployment.yml
+
+      - name: Commit and push changes
+        run: |
+          git add kubernetes/deployment.yml
+          git commit -m "Update Kubernetes deployment with new image tag: ${{ needs.docker.outputs.image_tag }} [skip ci]" || echo "No changes to commit"
+          git push 
