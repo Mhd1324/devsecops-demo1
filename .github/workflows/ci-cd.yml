@@ -27,7 +27,7 @@ jobs:
   
   lint:
     name: Static code analysis
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -161,7 +161,7 @@ jobs:
           # define new image name with tag
           NEW_IMAGE="${REGISTERY}/${GITHUB_REPOSITORY}:${IMAGE_TAG}"
           # update the deployment file directly
-          sed -i "s|image: ${REGISTARY}/.*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yml
+          sed -i "s|image: ${REGISTERY}/.*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yml
 
           # Verify the change
           echo "Updated deployment to use image: ${NEW_IMAGE}"
