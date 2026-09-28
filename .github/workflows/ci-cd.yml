@@ -77,6 +77,9 @@ jobs:
     outputs:
       image_tag: ${{ steps.set_output.outputs.image_tag }}
     steps:
+      - name: Check Docker images
+        run: docker images
+        
       - name: Checkout code
         uses: actions/checkout@v4
 
