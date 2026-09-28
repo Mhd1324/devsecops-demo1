@@ -165,7 +165,8 @@ jobs:
           REGISTERY: ghcr.io
         run: |
           # define new image name with tag
-          NEW_IMAGE="${REGISTERY}/${GITHUB_REPOSITORY}:${IMAGE_TAG}"
+          IMAGE_NAME=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          NEW_IMAGE="${REGISTERY}/${IMAGE_NAME}:${IMAGE_TAG}"
           # update the deployment file directly
           sed -i "s|image: ${REGISTERY}/.*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yml
 
