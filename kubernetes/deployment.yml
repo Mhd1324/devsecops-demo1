@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: tic-tac-toe
-          image: ghcr.io/mhd1324/devsecops-demo1:sha-3275ae78c02e037e0a857ccf359ba46d17b8c75f
+          image: ghcr.io/mhd1324/devsecops-demo1:sha-6a0abf64006159eef314ffa5b5eb47b88567f6c9
           imagePullPolicy: Always
           ports:
             - containerPort: 80
