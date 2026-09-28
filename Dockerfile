@@ -13,7 +13,7 @@ RUN npm run build
 
 
 # produce stage
-FROM nginx:alpine
+FROM nginx:1.30.5-alpine3.24-slim
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
