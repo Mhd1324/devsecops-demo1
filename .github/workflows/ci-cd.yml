@@ -77,9 +77,6 @@ jobs:
     outputs:
       image_tag: ${{ steps.set_output.outputs.image_tag }}
     steps:
-      - name: Check Docker images
-        run: docker images
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -118,6 +115,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           load: true
+          
+      - name: Check Docker images
+        run: docker images
 
       - name: Run Trivy vunerability scan
         uses: aquasecurity/trivy-action@master
